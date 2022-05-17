@@ -1,0 +1,28 @@
+<#include "managecacheuserattribute_tabs.html" />
+<@tabs2 tab="cacheuserattribute" />
+
+
+<@box>
+	<@boxHeader title='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.title}' />
+	<@boxBody>
+    <@tform class="form-horizontal" method="post" name="modify_cacheuserattribute" action="jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp" >
+			<@messages errors=errors />
+			<@input type="hidden" id="id" name="id" value="${cacheuserattribute.id}"/>
+			<@input type="hidden" value="${token}" name="token" />
+			
+			<@formGroup labelFor='id_user' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelIdUser}' mandatory=true>
+				<@input type='text' id='id_user' name='id_user'  maxlength=50 value='${cacheuserattribute.idUser!\'\'}' tabIndex='0' />
+			</@formGroup>
+			<@formGroup labelFor='id_attribute' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelIdAttribute}' mandatory=true>
+				<@input type='text' id='id_attribute' name='id_attribute'  value='${cacheuserattribute.idAttribute!\'\'}' tabIndex='1' />
+			</@formGroup>
+			<@formGroup labelFor='content' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelContent}' mandatory=true>
+				<@input type='text' id='content' name='content'  maxlength=50 value='${cacheuserattribute.content!\'\'}' tabIndex='2' />
+			</@formGroup>
+			<@formGroup labelFor='create_date' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelCreateDate}' mandatory=true>
+				<@input type='text' id='create_date' name='create_date'  value='${cacheuserattribute.createDate!\'\'}' tabIndex='3' />
+			</@formGroup>
+        <@actionButtons button1Name="action_modifyCacheUserAttribute" button2Name="view_manageCacheUserAttribute"/>
+    </@tform>
+	</@boxBody>
+</@box>

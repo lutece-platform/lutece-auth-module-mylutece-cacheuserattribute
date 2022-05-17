@@ -1,0 +1,10 @@
+<#macro tabs2 tab >
+<@tabs>
+	<@tabList>
+			<li <#if tab="cacheuserattribute">class="active"</#if>>
+				<@aButton href="jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp">#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.pageTitle}</@aButton>
+			</li>
+	</@tabList>
+</@tabs>
+
+</#macro>

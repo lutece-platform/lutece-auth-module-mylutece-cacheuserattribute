@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Plugin mylutece-cacheuserattribute</title>
+    </properties>
+    <head>
+        <meta name="keywords" content="authentication, user, attribute, cache" />
+    </head>
+    <body>
+        <section name="Plugin mylutece-cacheuserattribute">
+            <!--
+            <p>
+                <img src="images/mylutece-cacheuserattribute.png" />
+            </p>
+            -->
+            <subsection name="Introduction">
+                <p>This module is used to store in cache a selection of attributes of the Front Office user. 
+                A Lutece user event listener triggers the storage of data at login event.</p>
+            </subsection>
+            <subsection name="Configuration">
+                <p>The list of the attributes to store must be set in properties.</p>
+                <p>The property must have the prefix "mylutece-cacheuserattribute.attributeIds." and should end with the name of the lutece user attribute.</p>
+                <p>The value of the property is the id of the attribute that will be stored.</p>
+                <p>Example : <br/>
+                mylutece-cacheuserattribute.attributeIds.name=1</p>
+            </subsection>
+            <subsection name="Usage">
+                <p>The user attributes stored in cache are provided by the CacheuserattributeService class.</p>
+            </subsection>
+        </section>
+    </body>
+</document>
+
