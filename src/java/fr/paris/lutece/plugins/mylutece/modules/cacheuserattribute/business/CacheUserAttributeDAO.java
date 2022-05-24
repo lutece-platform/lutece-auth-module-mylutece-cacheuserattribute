@@ -39,6 +39,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -58,7 +59,9 @@ public final class CacheUserAttributeDAO implements ICacheUserAttributeDAO
     private static final String SQL_FILTER_BY_ID = " WHERE id_cache_user_attribute = ?";
     private static final String SQL_FILTER_BY_USER_AND_ATTR_ID = " WHERE id_user = ? and id_attribute = ? ";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_cache_user_attribute FROM mylutece_cacheuserattribute_attribute";
-
+    private static final String SQL_SELECT_BY_LIST_USER_ID = SQL_QUERY_SELECTALL + " WHERE id_user IN ( ";
+    private static final String SQL_FILTER_BY_ATTR_ID = " id_attribute = ? ";
+    
     /**
      * {@inheritDoc }
      */
@@ -226,4 +229,45 @@ public final class CacheUserAttributeDAO implements ICacheUserAttributeDAO
         }
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<CacheUserAttribute> selectByListUserIdsAndAttributeId( List<String> listUserIds, int nAttributeId, Plugin plugin )
+    {                
+        String strQuery = SQL_SELECT_BY_LIST_USER_ID + 
+                listUserIds.stream( ).map( i -> "?" ).collect( Collectors.joining( "," ) ) + " ) AND " + SQL_FILTER_BY_ATTR_ID;
+        
+        try ( DAOUtil daoUtil = new DAOUtil( strQuery, plugin ) )
+        {
+            int nIndexIn = 1;
+            
+            for ( String strUserId :  listUserIds )
+            {
+                daoUtil.setString( nIndexIn, strUserId );
+                nIndexIn++;
+            }           
+            daoUtil.setInt( nIndexIn, nAttributeId );
+            
+            daoUtil.executeQuery( );
+            
+            List<CacheUserAttribute> listCacheUserAttribute = new ArrayList< >( );
+
+            while ( daoUtil.next( ) )
+            {
+                CacheUserAttribute cacheUserAttribute = new CacheUserAttribute( );
+                int nIndex = 1;
+
+                cacheUserAttribute.setId( daoUtil.getInt( nIndex++ ) );
+                cacheUserAttribute.setIdUser( daoUtil.getString( nIndex++ ) );
+                cacheUserAttribute.setIdAttribute( daoUtil.getInt( nIndex++ ) );
+                cacheUserAttribute.setContent( daoUtil.getString( nIndex++ ) );
+                cacheUserAttribute.setCreateDate( daoUtil.getDate( nIndex ).toLocalDate( ) );
+                
+                listCacheUserAttribute.add( cacheUserAttribute );
+            }
+
+            return listCacheUserAttribute;
+        }
+    }
 }

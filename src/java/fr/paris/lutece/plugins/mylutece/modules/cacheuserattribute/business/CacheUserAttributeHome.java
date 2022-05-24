@@ -177,4 +177,15 @@ public final class CacheUserAttributeHome
     {
         return _dao.selectIdCacheUserAttributesListByUserKey( strUserKey, _plugin );
     }
+    
+    /**
+     * Load the data of all the cacheUserAttribute objects by list id user and id attribute
+     * @param listUserIds
+     * @param nAttributeId
+     * @return The list which contains the data of all the cacheUserAttribute objects
+     */
+    public static List<CacheUserAttribute> getCacheUserAttributeByListUserIdsAndAttributeId( List<String> listUserIds, int nAttributeId  )
+    {
+        return _dao.selectByListUserIdsAndAttributeId( listUserIds, nAttributeId, _plugin );
+    }
 }

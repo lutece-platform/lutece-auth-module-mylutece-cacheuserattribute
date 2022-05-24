@@ -117,6 +117,26 @@ public class CacheUserAttributeService
 
         return attrMap;
     }
+    
+    /**
+     * get cache attributes by list of user ids and attribute id
+     * @param listUserIds
+     * @param nAttributeId
+     * @return the map (key = user id, value = content of attribute)
+     */
+    public static Map<String, String> getCachedAttributesByListUserIdsAndAttributeId( List<String> listUserIds, int nAttributeId )
+    {
+        List<CacheUserAttribute> attrList = CacheUserAttributeHome.getCacheUserAttributeByListUserIdsAndAttributeId( listUserIds, nAttributeId );
+
+        Map<String, String> attrMap = new HashMap<>( );
+
+        for ( CacheUserAttribute attr : attrList )
+        {
+            attrMap.put( attr.getIdUser( ), attr.getContent( ) );
+        }
+
+        return attrMap;
+    }
 
     /**
      * get Attributes map by pair <key, id>
