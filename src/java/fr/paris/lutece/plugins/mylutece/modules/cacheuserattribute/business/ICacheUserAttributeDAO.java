@@ -35,7 +35,6 @@
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,6 +105,19 @@ public interface ICacheUserAttributeDAO
      */
     List<Integer> selectIdCacheUserAttributesListByUserKey( String strUserKey, Plugin plugin );
 
+    /**
+     * Load the data of all the cacheUserAttribute objects by list id user and id attribute
+     * 
+     * @param listUserIds
+     *            the list of id user 
+     * @param nAttributeId
+     *            the id attribute 
+     * @param plugin
+     *            the Plugin 
+     * @return The list which contains the data of all the cacheUserAttribute objects
+     */
+    List<CacheUserAttribute> selectByListUserIdsAndAttributeId( List<String> listUserIds, int nAttributeId, Plugin plugin );
+    
     /**
      * Load the data from the table
      * 
