@@ -104,7 +104,7 @@ public class CacheUserAttributeService
      * @param strUserId
      * @return the map
      */
-    public Map<String, String> getCachedAttributes( String strUserId )
+    public static Map<String, String> getCachedAttributes( String strUserId )
     {
         List<CacheUserAttribute> attrList = CacheUserAttributeHome.getCacheUserAttributesListByUserKey( strUserId );
 
@@ -112,7 +112,7 @@ public class CacheUserAttributeService
 
         for ( CacheUserAttribute attr : attrList )
         {
-            attrMap.put( getCachedAttributesMapById( ).get( attr.getId( ) ), attr.getContent( ) );
+            attrMap.put( getCachedAttributesMapById( ).get( attr.getIdAttribute( ) ), attr.getContent( ) );
         }
 
         return attrMap;
@@ -165,6 +165,7 @@ public class CacheUserAttributeService
      */
     private static Map<Integer, String> getCachedAttributesMapById( )
     {
+    	getCachedAttributesMapByKeys( );
         if ( _attributesIdsMapById == null )
         {
             _attributesIdsMapById = new HashMap<>( );
