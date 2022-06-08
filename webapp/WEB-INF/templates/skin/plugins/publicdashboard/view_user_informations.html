@@ -1,0 +1,20 @@
+<div class="row">
+	<div class="offset-lg-2 col-lg-8">
+		<h2>#i18n{module.extend.mydashboard.dashboardextend.pageTitle}</h2>
+		<div class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<th>#i18n{module.mylutece.cacheuserattribute.publicdashboard.title}</th>
+				</thead>
+				<tbody>
+					<#list dashboardUserInformations?keys as key>
+						<tr>
+							<td>${key}</td>
+							<td>${dashboardUserInformations[key]}</td>
+						</tr>
+					</#list>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

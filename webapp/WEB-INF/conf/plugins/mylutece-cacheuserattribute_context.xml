@@ -6,5 +6,6 @@
 
     <bean id="mylutece-cacheuserattribute.cacheUserAttributeDAO" class="fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttributeDAO" />
 
-
+	<bean id="mylutece-cacheuserattribute.PublicDashboardUserInfo" class="fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.dashboard.PublicDashboardUserInfo" />
+	
 </beans>
