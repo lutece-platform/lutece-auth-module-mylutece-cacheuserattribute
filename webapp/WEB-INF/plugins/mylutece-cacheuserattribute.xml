@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<plug-in>
+<?xml version="1.0" encoding="UTF-8"?><plug-in>
     <name>mylutece-cacheuserattribute</name>
     <class>fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.CacheUserAttributePlugin</class>
-    <version>1.0.0-SNAPSHOT</version>
-    <documentation></documentation>
-    <installation></installation>
-    <changes></changes>
-    <user-guide></user-guide>
+    <version>1.0.0</version>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
     <description>module.mylutece.cacheuserattribute.module.description</description>
     <provider>module.mylutece.cacheuserattribute.module.provider</provider>
     <provider-url>https://lutece.paris.fr</provider-url>
@@ -27,7 +26,7 @@
             <feature-description>module.mylutece.cacheuserattribute.adminFeature.ManageCacheUserAttribute.description</feature-description>
             <feature-level>1</feature-level>
             <feature-url>jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp</feature-url>
-            <feature-icon-url></feature-icon-url>
+            <feature-icon-url/>
         </admin-feature>
     </admin-features>
 
