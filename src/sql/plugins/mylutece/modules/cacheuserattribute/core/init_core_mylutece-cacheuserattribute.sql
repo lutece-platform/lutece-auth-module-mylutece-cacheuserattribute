@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset mylutece-cacheuserattribute:init_core_mylutece-cacheuserattribute.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 
 --
 -- Data for table core_admin_right
