@@ -12,7 +12,7 @@
     <artifactId>module-mylutece-cacheuserattribute</artifactId>
     <packaging>lutece-plugin</packaging>
     
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1-beta-01</version>
     <name>Lutece mylutece cacheuserattribute module</name>
 
     <repositories>
@@ -44,6 +44,6 @@
       <connection>scm:git:https://github.com/lutece-platform/lutece-auth-module-mylutece-cacheuserattribute.git</connection>
       <developerConnection>scm:git:https://github.com/lutece-platform/lutece-auth-module-mylutece-cacheuserattribute.git</developerConnection>
       <url>https://github.com/lutece-platform/lutece-auth-module-mylutece-cacheuserattribute.git</url>
-      <tag>HEAD</tag>
+      <tag>module-mylutece-cacheuserattribute-1.0.1-beta-01</tag>
     </scm>
 </project>
