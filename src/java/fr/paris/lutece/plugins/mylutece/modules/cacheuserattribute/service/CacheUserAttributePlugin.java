@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2022, City of Paris
+ * Copyright (c) 2002-2026, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,34 +33,20 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service;
 
-import java.util.function.Consumer;
-
-import fr.paris.lutece.portal.business.event.LuteceUserEvent;
-import fr.paris.lutece.portal.service.event.LuteceUserEventManager;
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.portal.service.util.AppLogService;
 
+/**
+ * Plugin entry point.
+ *
+ * <p>The login listener is implemented by {@link CacheUserAttributeService} as
+ * a CDI observer, so this entry point deliberately has no initialization work.
+ * </p>
+ */
 public class CacheUserAttributePlugin extends Plugin
 {
-    private final String LISTENER_NAME = "cacheuserattributes_listener";
-
-    /**
-     * Initializes the plugin at the first load
-     *
-     */
+    @Override
     public void init( )
     {
-        // register listener for Lutece User events
-        Consumer<LuteceUserEvent> eventFunction = ( LuteceUserEvent event ) -> {
-            if ( event.getParam( ) != null && event.getType( ) == LuteceUserEvent.EventType.LOGIN_SUCCESSFUL )
-            {
-                AppLogService.debug( "listener says > " + event.getParam( ).getName( ) + " performed : " + event.getType( ) );
-
-                CacheUserAttributeService.loginEvent( event );
-            }
-        };
-
-        LuteceUserEventManager.getInstance( ).register( LISTENER_NAME, eventFunction );
-
+        // The CDI observer in CacheUserAttributeService handles login events.
     }
 }

@@ -40,15 +40,16 @@ import java.util.Optional;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  * This class provides instances management methods (create, find, ...) for CacheUserAttribute objects
  */
 public final class CacheUserAttributeHome
 {
+
     // Static variable pointed at the DAO instance
-    private static ICacheUserAttributeDAO _dao = SpringContextService.getBean( "mylutece-cacheuserattribute.cacheUserAttributeDAO" );
+    private static ICacheUserAttributeDAO _dao = CDI.current( ).select( ICacheUserAttributeDAO.class ).get( );
     private static Plugin _plugin = PluginService.getPlugin( "mylutece-cacheuserattribute" );
 
     /**
@@ -147,10 +148,10 @@ public final class CacheUserAttributeHome
     }
 
     /**
-     * Returns an instance of a cacheUserAttribute whose identifier is specified in parameter
-     * 
-     * @param nKey
-     *            The cacheUserAttribute primary key
+     * Returns an instance of a cacheUserAttribute whose identifiers is specified in parameter
+     *
+     * @param strUserId the id of the user
+     * @param nAttrId  the attribute id
      * @return an instance of CacheUserAttribute
      */
     public static Optional<CacheUserAttribute> findByUserAndAttributeId( String strUserId, int nAttrId )

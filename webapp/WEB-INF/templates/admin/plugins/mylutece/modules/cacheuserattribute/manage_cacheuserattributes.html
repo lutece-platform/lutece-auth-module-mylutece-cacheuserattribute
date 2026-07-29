@@ -1,62 +1,50 @@
-<#include "managecacheuserattribute_tabs.html" />
-<@tabs2 tab="cacheuserattribute" />
-
-<@box>
-	<@boxHeader title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattribute.title}' boxTools=true>
-		<@tform class='form-inline pull-right' name='manage_cacheuserattribute' action='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp'>
-		<@inputGroup> 
-		 <@inputGroupItem >
-			<@input type='text' name='user_id' />
-		 </@inputGroupItem>
-		 <@inputGroupItem >
-			<@button type='submit' name='view_manageCacheUserAttributes' buttonIcon='search' title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonSearch}' />
-		 </@inputGroupItem> &nbsp;
-		 <@inputGroupItem>
-			<@button type='submit' name='view_createCacheUserAttribute' buttonIcon='plus' title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonAdd}' />
-		 </@inputGroupItem>
-		 </@inputGroup> 
-		</@tform>
-	</@boxHeader>
-	<@boxBody>    
-    <@messages infos=infos />
-    <@paginationAdmin paginator=paginator combo=1 />
-    <div class="clearfix"></div>
-    
-    
-    <@table>
-        <tr>
-            <th>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnIdUser}</th>
-            <th>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnIdAttribute}</th>
-            <th>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnContent}</th>
-            <th>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnCreateDate}</th>
-            <th>#i18n{portal.util.labelActions}</th>
-        </tr>
-        <@tableHeadBodySeparator />
-        <#list cacheuserattribute_list as cacheuserattribute >
-        <tr>
-            <td>
-				${cacheuserattribute.idUser}
-			</td>
-            <td>
-				${cacheuserattribute.idAttribute}
-			</td>
-            <td>
-				${cacheuserattribute.content}
-			</td>
-            <td>
-				${cacheuserattribute.createDate}
-			</td>
-        	<td>
-				<@aButton href='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?view=modifyCacheUserAttribute&id=${cacheuserattribute.id}' title='#i18n{portal.util.labelModify}' hideTitle=['all'] buttonIcon='pencil' />
-						
-				<@aButton href='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?action=confirmRemoveCacheUserAttribute&id=${cacheuserattribute.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
-
-	        </td>
-        </tr>
-        </#list>
-    </@table>
-
-    <@paginationAdmin paginator=paginator />
-
-  </@boxBody>
-</@box>
+<@pageContainer>
+	<@pageColumn>
+		<@pageHeader title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.pageTitle}' toolsClass='d-flex'>
+			<@offcanvas id='offcanvasSearch' title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonSearch}' btnTitle='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonSearch}' btnIcon='search' btnClass='me-1' position='end' size='sm'>
+				<@tform method='get' action='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp'>
+					<@formGroup labelFor='search_user_id' labelKey='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnIdUser}'>
+						<@input type='text' id='search_user_id' name='user_id' value='${user_id!}' />
+					</@formGroup>
+					<@formGroup>
+						<@button type='submit' buttonIcon='search' title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonSearch}' color='primary' />
+						<@button type='submit' name='search_reset' value='1' buttonIcon='x' title='#i18n{portal.util.labelReset}' color='secondary' />
+					</@formGroup>
+				</@tform>
+			</@offcanvas>
+			<@offcanvas id='offcanvasCreate' targetUrl='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?view=createCacheUserAttribute' useIframe=true title='#i18n{module.mylutece.cacheuserattribute.create_cacheuserattribute.title}' btnTitle='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonAdd}' btnIcon='plus' btnColor='primary' position='end' size='half' />
+		</@pageHeader>
+		<@messages infos=infos />
+		<#if cacheuserattribute_list?has_content && cacheuserattribute_list?size gt 0>
+			<@manageFeature id='cacheuserattribute-list'>
+				<#list cacheuserattribute_list as cacheuserattribute>
+					<@manageFeatureItem>
+						<@manageFeatureItemColumn auto=true flex=false>
+							<strong>${cacheuserattribute.idUser!}</strong>
+							<@p class='my-1'><small>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnIdAttribute}: <strong>${cacheuserattribute.idAttribute!}</strong></small></@p>
+						</@manageFeatureItemColumn>
+						<@manageFeatureItemColumn auto=true flex=false valign='top'>
+							<@p class='fw-bold fs-3'>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnContent}</@p>
+							${cacheuserattribute.content!}
+						</@manageFeatureItemColumn>
+						<@manageFeatureItemColumn auto=true flex=false valign='top'>
+							<@p class='fw-bold fs-3'>#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.columnCreateDate}</@p>
+							${cacheuserattribute.createDate!}
+						</@manageFeatureItemColumn>
+						<@manageFeatureItemColumn align='end'>
+							<@offcanvas id='offcanvasModify-${cacheuserattribute.id}' targetUrl='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?view=modifyCacheUserAttribute&id=${cacheuserattribute.id}' useIframe=true title='#i18n{portal.util.labelModify}' btnTitle='#i18n{portal.util.labelModify}' btnIcon='edit' btnColor='' btnClass='me-1' hideTitle=['all'] position='end' size='half' />
+							<@aButton href='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?action=confirmRemoveCacheUserAttribute&id=${cacheuserattribute.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' color='danger' hideTitle=['all'] />
+						</@manageFeatureItemColumn>
+					</@manageFeatureItem>
+				</#list>
+			</@manageFeature>
+			<#if cacheuserattribute_list?size gte 10>
+				<@paginationAdmin paginator=paginator combo=1 />
+			</#if>
+		<#else>
+			<@card>
+				<@empty title='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.noResult}' iconName='inbox-off' subtitle='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.help}' actionTitle='#i18n{module.mylutece.cacheuserattribute.manage_cacheuserattributes.buttonAdd}' actionUrl='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?view=createCacheUserAttribute' />
+			</@card>
+		</#if>
+	</@pageColumn>
+</@pageContainer>

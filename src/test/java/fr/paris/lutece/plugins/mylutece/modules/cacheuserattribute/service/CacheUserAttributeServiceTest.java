@@ -33,24 +33,37 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.security.MockLuteceAuthentication;
+import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.security.MockLuteceUser;
 import fr.paris.lutece.portal.business.event.LuteceUserEvent;
-import fr.paris.lutece.portal.service.security.MokeLuteceAuthentication;
-import fr.paris.lutece.portal.service.security.MokeLuteceUser;
 import fr.paris.lutece.test.LuteceTestCase;
 
-public class CacheUserAttributeServiceTest extends LuteceTestCase
+class CacheUserAttributeServiceTest extends LuteceTestCase
 {
+    private static final String USER_NAME = "user-test";
 
-	private static final String USER_NAME = "user-test";
-
-	public void test( )
+    @BeforeEach
+    protected void setUp( ) throws Exception
     {
-		MokeLuteceUser user = new MokeLuteceUser( USER_NAME, new MokeLuteceAuthentication( ) );
-
-    	// notify an event
-    	CacheUserAttributeService.loginEvent( new LuteceUserEvent( user, LuteceUserEvent.EventType.LOGIN_SUCCESSFUL ) );
-
-    	
+        super.setUp( );
     }
-    
+
+    @AfterEach
+    protected void tearDown( ) throws Exception
+    {
+        super.tearDown( );
+    }
+
+    @Test
+    void test( )
+    {
+        MockLuteceUser user = new MockLuteceUser( USER_NAME, new MockLuteceAuthentication( ) );
+
+        // notify an event via direct service call (CDI event observation tested separately)
+        CacheUserAttributeService.loginEvent( new LuteceUserEvent( user, LuteceUserEvent.EventType.LOGIN_SUCCESSFUL ) );
+    }
 }

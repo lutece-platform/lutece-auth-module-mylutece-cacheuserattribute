@@ -37,6 +37,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttribute;
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttributeHome;
 import fr.paris.lutece.portal.business.event.LuteceUserEvent;
@@ -44,6 +48,7 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+@ApplicationScoped
 public class CacheUserAttributeService
 {
 
@@ -54,6 +59,27 @@ public class CacheUserAttributeService
 
     private static Map<String, Integer> _attributesIdsMapByKey;
     private static Map<Integer, String> _attributesIdsMapById;
+
+    @PostConstruct
+    public void init( )
+    {
+        AppLogService.info( "CacheUserAttribute module initialized" );
+    }
+
+    /**
+     * Observe Lutece user login events via CDI
+     * 
+     * @param event the Lutece user event
+     */
+    public void onLuteceUserLogin( @Observes LuteceUserEvent event )
+    {
+        if ( event.getParam( ) != null && event.getType( ) == LuteceUserEvent.EventType.LOGIN_SUCCESSFUL )
+        {
+            AppLogService.debug( "listener says > " + event.getParam( ).getName( ) + " performed : " + event.getType( ) );
+
+            loginEvent( event );
+        }
+    }
 
     /**
      * consume event
@@ -117,7 +143,7 @@ public class CacheUserAttributeService
 
         return attrMap;
     }
-    
+
     /**
      * get cache attributes by list of user ids and attribute id
      * @param listUserIds
@@ -165,7 +191,7 @@ public class CacheUserAttributeService
      */
     private static Map<Integer, String> getCachedAttributesMapById( )
     {
-    	getCachedAttributesMapByKeys( );
+        getCachedAttributesMapByKeys( );
         if ( _attributesIdsMapById == null )
         {
             _attributesIdsMapById = new HashMap<>( );

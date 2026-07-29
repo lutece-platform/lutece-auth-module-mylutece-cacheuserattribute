@@ -33,17 +33,19 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business;
 
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.test.LuteceTestCase;
-
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.Optional;
 
 /**
  * This is the business class test for the object CacheUserAttribute
  */
-public class CacheUserAttributeBusinessTest extends LuteceTestCase
+class CacheUserAttributeBusinessTest extends LuteceTestCase
 {
     private static final String IDUSER1 = "IdUser1";
     private static final String IDUSER2 = "IdUser2";
@@ -54,10 +56,23 @@ public class CacheUserAttributeBusinessTest extends LuteceTestCase
     private static final LocalDate CREATEDATE1 = LocalDate.now( );
     private static final LocalDate CREATEDATE2 = LocalDate.now( ).plusDays( 1 );
 
+    @BeforeEach
+    protected void setUp( ) throws Exception
+    {
+        super.setUp( );
+    }
+
+    @AfterEach
+    protected void tearDown( ) throws Exception
+    {
+        super.tearDown( );
+    }
+
     /**
      * test CacheUserAttribute
      */
-    public void testBusiness( )
+    @Test
+    void testBusiness( )
     {
         // Initialize an object
         CacheUserAttribute cacheUserAttribute = new CacheUserAttribute( );
@@ -70,10 +85,10 @@ public class CacheUserAttributeBusinessTest extends LuteceTestCase
         CacheUserAttributeHome.create( cacheUserAttribute );
         CacheUserAttribute cacheUserAttributeStored = CacheUserAttributeHome.findByPrimaryKey( cacheUserAttribute.getId( ) )
                 .orElseThrow( ( ) -> new AppException( "resource not found" ) );
-        assertEquals( cacheUserAttributeStored.getIdUser( ), cacheUserAttribute.getIdUser( ) );
-        assertEquals( cacheUserAttributeStored.getIdAttribute( ), cacheUserAttribute.getIdAttribute( ) );
-        assertEquals( cacheUserAttributeStored.getContent( ), cacheUserAttribute.getContent( ) );
-        assertEquals( cacheUserAttributeStored.getCreateDate( ).toString( ), cacheUserAttribute.getCreateDate( ).toString( ) );
+        assertEquals( cacheUserAttribute.getIdUser( ), cacheUserAttributeStored.getIdUser( ) );
+        assertEquals( cacheUserAttribute.getIdAttribute( ), cacheUserAttributeStored.getIdAttribute( ) );
+        assertEquals( cacheUserAttribute.getContent( ), cacheUserAttributeStored.getContent( ) );
+        assertEquals( cacheUserAttribute.getCreateDate( ).toString( ), cacheUserAttributeStored.getCreateDate( ).toString( ) );
 
         // Update test
         cacheUserAttribute.setIdUser( IDUSER2 );
@@ -81,15 +96,15 @@ public class CacheUserAttributeBusinessTest extends LuteceTestCase
         cacheUserAttribute.setContent( CONTENT2 );
         cacheUserAttribute.setCreateDate( CREATEDATE2 );
         CacheUserAttributeHome.update( cacheUserAttribute );
-        
+
         assertTrue( CacheUserAttributeHome.findByPrimaryKey( cacheUserAttribute.getId( ) ).isPresent( ) );
-        
+
         cacheUserAttributeStored = CacheUserAttributeHome.findByPrimaryKey( cacheUserAttribute.getId( ) )
                 .orElseThrow( ( ) -> new AppException( "resource not found" ) );
-        assertEquals( cacheUserAttributeStored.getIdUser( ), cacheUserAttribute.getIdUser( ) );
-        assertEquals( cacheUserAttributeStored.getIdAttribute( ), cacheUserAttribute.getIdAttribute( ) );
-        assertEquals( cacheUserAttributeStored.getContent( ), cacheUserAttribute.getContent( ) );
-        assertEquals( cacheUserAttributeStored.getCreateDate( ).toString( ), cacheUserAttribute.getCreateDate( ).toString( ) );
+        assertEquals( cacheUserAttribute.getIdUser( ), cacheUserAttributeStored.getIdUser( ) );
+        assertEquals( cacheUserAttribute.getIdAttribute( ), cacheUserAttributeStored.getIdAttribute( ) );
+        assertEquals( cacheUserAttribute.getContent( ), cacheUserAttributeStored.getContent( ) );
+        assertEquals( cacheUserAttribute.getCreateDate( ).toString( ), cacheUserAttributeStored.getCreateDate( ).toString( ) );
 
         // List test
         CacheUserAttributeHome.getCacheUserAttributesListByUserKey( IDUSER2 );
@@ -97,7 +112,5 @@ public class CacheUserAttributeBusinessTest extends LuteceTestCase
         // Delete test
         CacheUserAttributeHome.remove( cacheUserAttribute.getId( ) );
         assertFalse( CacheUserAttributeHome.findByPrimaryKey( cacheUserAttribute.getId( ) ).isPresent( ) );
-
     }
-
 }

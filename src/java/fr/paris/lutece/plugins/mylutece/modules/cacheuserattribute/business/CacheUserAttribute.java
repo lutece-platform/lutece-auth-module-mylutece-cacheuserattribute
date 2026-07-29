@@ -33,18 +33,21 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business;
 
-import javax.validation.constraints.Size;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * This is the business class for the object CacheUserAttribute
  */
 public class CacheUserAttribute implements Serializable
 {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // Variables declarations
