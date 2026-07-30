@@ -50,8 +50,6 @@ import fr.paris.lutece.util.url.UrlItem;
  */
 public abstract class AbstractManageCacheUserAttributeJspBean extends MVCAdminJspBean
 {
-    // Rights
-    public static final String RIGHT_MANAGECACHEUSERATTRIBUTE = "MYLUTECE_CACHEUSERATTRIBUTE_MANAGEMENT";
 
     // Properties
     private static final String PROPERTY_DEFAULT_LIST_ITEM_PER_PAGE = "mylutece-cacheuserattribute.listItems.itemsPerPage";

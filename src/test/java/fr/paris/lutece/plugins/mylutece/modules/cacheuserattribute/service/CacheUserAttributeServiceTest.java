@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.secur
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.security.MockLuteceUser;
 import fr.paris.lutece.portal.business.event.LuteceUserEvent;
 import fr.paris.lutece.test.LuteceTestCase;
+import jakarta.enterprise.inject.spi.CDI;
 
 class CacheUserAttributeServiceTest extends LuteceTestCase
 {
@@ -64,6 +65,7 @@ class CacheUserAttributeServiceTest extends LuteceTestCase
         MockLuteceUser user = new MockLuteceUser( USER_NAME, new MockLuteceAuthentication( ) );
 
         // notify an event via direct service call (CDI event observation tested separately)
-        CacheUserAttributeService.loginEvent( new LuteceUserEvent( user, LuteceUserEvent.EventType.LOGIN_SUCCESSFUL ) );
+        CacheUserAttributeService service = CDI.current( ).select( CacheUserAttributeService.class ).get( );
+        service.loginEvent( new LuteceUserEvent( user, LuteceUserEvent.EventType.LOGIN_SUCCESSFUL ) );
     }
 }
