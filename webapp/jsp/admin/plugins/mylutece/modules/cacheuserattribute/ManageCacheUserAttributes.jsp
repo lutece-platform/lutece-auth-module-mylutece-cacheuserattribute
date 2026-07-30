@@ -1,9 +1,9 @@
-<jsp:useBean id="managecacheuserattributeCacheUserAttribute" scope="session" class="fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.web.CacheUserAttributeJspBean" />
-<% String strContent = managecacheuserattributeCacheUserAttribute.processController ( request , response ); %>
-
 <%@ page errorPage="../../../../ErrorPage.jsp" %>
+
+${ pageContext.setAttribute( 'strContent', cacheUserAttributeJspBean.processController( pageContext.request , pageContext.response ) ) }
+
 <jsp:include page="../../../../AdminHeader.jsp" />
 
-<%= strContent %>
+${ pageContext.getAttribute( 'strContent' ) }
 
 <%@ include file="../../../../AdminFooter.jsp" %>

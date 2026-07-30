@@ -37,6 +37,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttribute;
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttributeHome;
 import fr.paris.lutece.portal.business.event.LuteceUserEvent;
@@ -44,6 +48,7 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+@ApplicationScoped
 public class CacheUserAttributeService
 {
 
@@ -52,15 +57,51 @@ public class CacheUserAttributeService
     private static final int FIRST_CONNECTION_DATE_ATTRIBUTE_ID = 0;
     private static final String FIRST_CONNECTION_ATTRIBUTE_CONTENT = "init";
 
-    private static Map<String, Integer> _attributesIdsMapByKey;
-    private static Map<Integer, String> _attributesIdsMapById;
+    private Map<String, Integer> _attributeIdByPropertyKey;
+    private Map<Integer, String> _propertyKeyByAttributeId;
+
+    /**
+     * Initialization of the maps
+     */
+    @PostConstruct
+    public void init( )
+    {
+        _attributeIdByPropertyKey = new HashMap<>( );
+        for ( String key : AppPropertiesService.getKeys( PROPERTY_CACHE_ATTRIBUTES_PREFIX ) )
+        {
+            _attributeIdByPropertyKey.put( key, AppPropertiesService.getPropertyInt( key, -1 ) );
+        }
+
+        _propertyKeyByAttributeId = new HashMap<>( );
+        for ( String key : _attributeIdByPropertyKey.keySet( ) )
+        {
+            _propertyKeyByAttributeId.put( AppPropertiesService.getPropertyInt( key, -1 ), key );
+        }
+
+        AppLogService.info( "CacheUserAttribute module initialized" );
+    }
+
+    /**
+     * Observe Lutece user login events via CDI
+     * 
+     * @param event the Lutece user event
+     */
+    public void onLuteceUserLogin( @Observes LuteceUserEvent event )
+    {
+        if ( event.getParam( ) != null && event.getType( ) == LuteceUserEvent.EventType.LOGIN_SUCCESSFUL )
+        {
+            AppLogService.debug( "listener says > " + event.getParam( ).getName( ) + " performed : " + event.getType( ) );
+
+            loginEvent( event );
+        }
+    }
 
     /**
      * consume event
      * 
      * @param event
      */
-    public static void loginEvent( LuteceUserEvent event )
+    public void loginEvent( LuteceUserEvent event )
     {
         LuteceUser user = event.getParam( );
 
@@ -70,13 +111,13 @@ public class CacheUserAttributeService
 
         for ( String userAttrKey : user.getUserInfos( ).keySet( ) )
         {
-            if ( getCachedAttributesMapByKeys( ).containsKey( PROPERTY_CACHE_ATTRIBUTES_PREFIX + "." + userAttrKey ) )
+            if ( _attributeIdByPropertyKey.containsKey( PROPERTY_CACHE_ATTRIBUTES_PREFIX + "." + userAttrKey ) )
             {
                 mustBeCached = true;
 
                 CacheUserAttribute attr = new CacheUserAttribute( );
                 attr.setIdUser( user.getAccessCode( ) );
-                attr.setIdAttribute( getCachedAttributesMapByKeys( ).get( PROPERTY_CACHE_ATTRIBUTES_PREFIX + "." + userAttrKey ) );
+                attr.setIdAttribute( _attributeIdByPropertyKey.get( PROPERTY_CACHE_ATTRIBUTES_PREFIX + "." + userAttrKey ) );
                 attr.setContent( user.getUserInfo( userAttrKey ) );
 
                 CacheUserAttributeHome.createOrUpdateIfDifferent( attr );
@@ -104,7 +145,7 @@ public class CacheUserAttributeService
      * @param strUserId
      * @return the map
      */
-    public static Map<String, String> getCachedAttributes( String strUserId )
+    public Map<String, String> getCachedAttributes( String strUserId )
     {
         List<CacheUserAttribute> attrList = CacheUserAttributeHome.getCacheUserAttributesListByUserKey( strUserId );
 
@@ -112,70 +153,10 @@ public class CacheUserAttributeService
 
         for ( CacheUserAttribute attr : attrList )
         {
-            attrMap.put( getCachedAttributesMapById( ).get( attr.getIdAttribute( ) ), attr.getContent( ) );
-        }
-
-        return attrMap;
-    }
-    
-    /**
-     * get cache attributes by list of user ids and attribute id
-     * @param listUserIds
-     * @param nAttributeId
-     * @return the map (key = user id, value = content of attribute)
-     */
-    public static Map<String, String> getCachedAttributesByListUserIdsAndAttributeId( List<String> listUserIds, int nAttributeId )
-    {
-        List<CacheUserAttribute> attrList = CacheUserAttributeHome.getCacheUserAttributeByListUserIdsAndAttributeId( listUserIds, nAttributeId );
-
-        Map<String, String> attrMap = new HashMap<>( );
-
-        for ( CacheUserAttribute attr : attrList )
-        {
-            attrMap.put( attr.getIdUser( ), attr.getContent( ) );
+            attrMap.put( _propertyKeyByAttributeId.get( attr.getIdAttribute( ) ), attr.getContent( ) );
         }
 
         return attrMap;
     }
 
-    /**
-     * get Attributes map by pair <key, id>
-     * 
-     * @return the map of attributes keys and ids
-     */
-    private static Map<String, Integer> getCachedAttributesMapByKeys( )
-    {
-        if ( _attributesIdsMapByKey == null )
-        {
-            _attributesIdsMapByKey = new HashMap<>( );
-
-            for ( String key : AppPropertiesService.getKeys( PROPERTY_CACHE_ATTRIBUTES_PREFIX ) )
-            {
-                _attributesIdsMapByKey.put( key, AppPropertiesService.getPropertyInt( key, -1 ) );
-            }
-        }
-
-        return _attributesIdsMapByKey;
-    }
-
-    /**
-     * get Attributes map by pair <id, key>
-     * 
-     * @return the map of attributes keys and ids
-     */
-    private static Map<Integer, String> getCachedAttributesMapById( )
-    {
-    	getCachedAttributesMapByKeys( );
-        if ( _attributesIdsMapById == null )
-        {
-            _attributesIdsMapById = new HashMap<>( );
-
-            for ( String key : _attributesIdsMapByKey.keySet( ) )
-            {
-                _attributesIdsMapById.put( AppPropertiesService.getPropertyInt( key, -1 ), key );
-            }
-        }
-
-        return _attributesIdsMapById;
-    }
 }

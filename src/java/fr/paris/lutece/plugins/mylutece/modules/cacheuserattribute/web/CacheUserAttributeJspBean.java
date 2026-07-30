@@ -34,30 +34,37 @@
 
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.web;
 
+import java.io.Serial;
+import java.util.List;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+
+import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.service.util.AppException;
-import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
-import fr.paris.lutece.util.url.UrlItem;
-
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttribute;
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttributeHome;
+import fr.paris.lutece.util.url.UrlItem;
 
 /**
  * This class provides the user interface to manage CacheUserAttribute features ( manage, create, modify, remove )
  */
+@SessionScoped
+@Named( "cacheUserAttributeJspBean" )
 @Controller( controllerJsp = "ManageCacheUserAttributes.jsp", controllerPath = "jsp/admin/plugins/mylutece/modules/cacheuserattribute/", right = "MYLUTECE_CACHEUSERATTRIBUTE_MANAGEMENT" )
 public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJspBean
 {
 
-	private static final long serialVersionUID = 5246660343915886385L;
+	@Serial
+    private static final long serialVersionUID = 5246660343915886385L;
 	
 	// Templates
     private static final String TEMPLATE_MANAGE_CACHEUSERATTRIBUTES = "/admin/plugins/mylutece/modules/cacheuserattribute/manage_cacheuserattributes.html";
@@ -103,6 +110,9 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     // ERRORS
     private static final String ERROR_RESOURCE_NOT_FOUND = "Resource not found";
 
+    @Inject
+    private Models _model;
+
     // Session variable to store working values
     private CacheUserAttribute _cacheuserattribute;
 
@@ -121,7 +131,8 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
         String strUserId = request.getParameter( PARAMETER_USER_ID );
 
         List<CacheUserAttribute> listCacheUserAttributes = CacheUserAttributeHome.getCacheUserAttributesListByUserKey( strUserId );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_CACHEUSERATTRIBUTE_LIST, listCacheUserAttributes, JSP_MANAGE_CACHEUSERATTRIBUTES );
+        Models model = getPaginatedListModel( request, MARK_CACHEUSERATTRIBUTE_LIST, listCacheUserAttributes, JSP_MANAGE_CACHEUSERATTRIBUTES );
+        model.put( PARAMETER_USER_ID, strUserId );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_CACHEUSERATTRIBUTES, TEMPLATE_MANAGE_CACHEUSERATTRIBUTES, model );
     }
@@ -138,9 +149,9 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     {
         _cacheuserattribute = ( _cacheuserattribute != null ) ? _cacheuserattribute : new CacheUserAttribute( );
 
-        Map<String, Object> model = getModel( );
+        Models model = _model;
         model.put( MARK_CACHEUSERATTRIBUTE, _cacheuserattribute );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_CACHEUSERATTRIBUTE ) );
+        model.put( SecurityTokenService.MARK_TOKEN, getSecurityTokenService( ).getToken( request, ACTION_CREATE_CACHEUSERATTRIBUTE ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_CACHEUSERATTRIBUTE, TEMPLATE_CREATE_CACHEUSERATTRIBUTE, model );
     }
@@ -151,14 +162,14 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      * @param request
      *            The Http Request
      * @return The Jsp URL of the process result
-     * @throws AccessDeniedException
+     * @throws AccessDeniedException return exception if token invalid
      */
     @Action( ACTION_CREATE_CACHEUSERATTRIBUTE )
     public String doCreateCacheUserAttribute( HttpServletRequest request ) throws AccessDeniedException
     {
         populate( _cacheuserattribute, request, getLocale( ) );
 
-        if ( !SecurityTokenService.getInstance( ).validate( request, ACTION_CREATE_CACHEUSERATTRIBUTE ) )
+        if ( !getSecurityTokenService( ).validate( request, ACTION_CREATE_CACHEUSERATTRIBUTE ) )
         {
             throw new AccessDeniedException( "Invalid security token" );
         }
@@ -230,9 +241,9 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
             _cacheuserattribute = CacheUserAttributeHome.findByPrimaryKey( nId ).orElseThrow( ( ) -> new AppException( ERROR_RESOURCE_NOT_FOUND ) );
         }
 
-        Map<String, Object> model = getModel( );
+        Models model = _model;
         model.put( MARK_CACHEUSERATTRIBUTE, _cacheuserattribute );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_CACHEUSERATTRIBUTE ) );
+        model.put( SecurityTokenService.MARK_TOKEN, getSecurityTokenService( ).getToken( request, ACTION_MODIFY_CACHEUSERATTRIBUTE ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_CACHEUSERATTRIBUTE, TEMPLATE_MODIFY_CACHEUSERATTRIBUTE, model );
     }
@@ -243,14 +254,14 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      * @param request
      *            The Http request
      * @return The Jsp URL of the process result
-     * @throws AccessDeniedException
+     * @throws AccessDeniedException return exception if token invalid
      */
     @Action( ACTION_MODIFY_CACHEUSERATTRIBUTE )
     public String doModifyCacheUserAttribute( HttpServletRequest request ) throws AccessDeniedException
     {
         populate( _cacheuserattribute, request, getLocale( ) );
 
-        if ( !SecurityTokenService.getInstance( ).validate( request, ACTION_MODIFY_CACHEUSERATTRIBUTE ) )
+        if ( !getSecurityTokenService( ).validate( request, ACTION_MODIFY_CACHEUSERATTRIBUTE ) )
         {
             throw new AccessDeniedException( "Invalid security token" );
         }

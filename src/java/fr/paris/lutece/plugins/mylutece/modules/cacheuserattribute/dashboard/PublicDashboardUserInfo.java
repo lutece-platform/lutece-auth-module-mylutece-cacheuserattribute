@@ -37,6 +37,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.CacheUserAttributeService;
 import fr.paris.lutece.portal.service.dashboard.IPublicDashboardComponent;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -44,12 +48,17 @@ import fr.paris.lutece.portal.service.i18n.I18nService;
 /**
  * The Class PublicDashboardUserInfo.
  */
+@ApplicationScoped
+@Named( "mylutece-cacheuserattribute.PublicDashboardUserInfo" )
 public class PublicDashboardUserInfo implements IPublicDashboardComponent
 {
 	public static final String DASHBOARD_PROPERTIES_TITLE = "module.mylutece.cacheuserattribute.publicdashboard.bean.title";
-	private String strIdComponent = "mylutece-cacheuserattribute.PublicDashboardUserInfo";
+    private static final String COMPONENT_ID = "mylutece-cacheuserattribute.PublicDashboardUserInfo";
 	private static final String TEMPLATE_USER_INFORMATIONS = "/skin/plugins/mylutece/modules/cacheuserattribute/publicdashboard_user_informations.html";
 	private static final String MARK_DASHBOARD_USER = "userInformations_publicdashboard";
+
+	@Inject
+	private CacheUserAttributeService cacheUserAttributeService;
 
 	@Override
 	public String getComponentDescription( Locale locale ) {
@@ -58,7 +67,7 @@ public class PublicDashboardUserInfo implements IPublicDashboardComponent
 
 	@Override
 	public String getComponentId( ) {
-		return strIdComponent;
+		return COMPONENT_ID;
 	}
 	
 	@Override
@@ -70,24 +79,9 @@ public class PublicDashboardUserInfo implements IPublicDashboardComponent
 	@Override
 	public Map<String, Object> getDashboardModel( String user_id, Map<String,String[]> additionalParameters )
 	{
-		Map<String, Object> model = new HashMap<String, Object>( );
-		model.put( MARK_DASHBOARD_USER, searchUserInformations( user_id ) );
+		Map<String, Object> model = new HashMap<>( );
+		model.put( MARK_DASHBOARD_USER, cacheUserAttributeService.getCachedAttributes( user_id ) );
 		return model;
 	}
-
-    /**
-     * Search name.
-     *
-     * @param user_id the user_id
-     * @return the map
-     */
-    private static Map<String, String> searchUserInformations( String user_id )
-    {
-
-        Map<String, String> map = CacheUserAttributeService.getCachedAttributes( user_id );
-
-        return map;
-
-    }
 
 }
