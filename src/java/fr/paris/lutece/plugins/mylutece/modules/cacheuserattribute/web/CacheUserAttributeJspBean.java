@@ -37,7 +37,7 @@ package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.web;
 import java.io.Serial;
 import java.util.List;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -110,6 +110,9 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     // ERRORS
     private static final String ERROR_RESOURCE_NOT_FOUND = "Resource not found";
 
+    @Inject
+    private Models _model;
+
     // Session variable to store working values
     private CacheUserAttribute _cacheuserattribute;
 
@@ -146,7 +149,7 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     {
         _cacheuserattribute = ( _cacheuserattribute != null ) ? _cacheuserattribute : new CacheUserAttribute( );
 
-        Models model = CDI.current( ).select( Models.class ).get( );
+        Models model = _model;
         model.put( MARK_CACHEUSERATTRIBUTE, _cacheuserattribute );
         model.put( SecurityTokenService.MARK_TOKEN, getSecurityTokenService( ).getToken( request, ACTION_CREATE_CACHEUSERATTRIBUTE ) );
 
@@ -238,7 +241,7 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
             _cacheuserattribute = CacheUserAttributeHome.findByPrimaryKey( nId ).orElseThrow( ( ) -> new AppException( ERROR_RESOURCE_NOT_FOUND ) );
         }
 
-        Models model = CDI.current( ).select( Models.class ).get( );
+        Models model = _model;
         model.put( MARK_CACHEUSERATTRIBUTE, _cacheuserattribute );
         model.put( SecurityTokenService.MARK_TOKEN, getSecurityTokenService( ).getToken( request, ACTION_MODIFY_CACHEUSERATTRIBUTE ) );
 
