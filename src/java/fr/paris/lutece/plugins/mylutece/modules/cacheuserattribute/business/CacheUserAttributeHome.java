@@ -40,7 +40,7 @@ import java.util.Optional;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  * This class provides instances management methods (create, find, ...) for CacheUserAttribute objects
@@ -48,8 +48,29 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 public final class CacheUserAttributeHome
 {
     // Static variable pointed at the DAO instance
-    private static ICacheUserAttributeDAO _dao = SpringContextService.getBean( "mylutece-cacheuserattribute.cacheUserAttributeDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "mylutece-cacheuserattribute" );
+    private static ICacheUserAttributeDAO _dao = CDI.current( ).select( ICacheUserAttributeDAO.class ).get( );
+    /**
+     * The unit-test container never runs the portal startup, so PluginService has no cache.
+     * DAOUtil falls back on the portal pool when the plugin is null.
+     */
+    private static Plugin _plugin = getPluginOrNull( );
+
+    /**
+     * Returns the plugin, or null when it cannot be resolved (unit-test container)
+     *
+     * @return the plugin, or null
+     */
+    private static Plugin getPluginOrNull( )
+    {
+        try
+        {
+            return PluginService.getPlugin( "mylutece-cacheuserattribute" );
+        }
+        catch( RuntimeException e )
+        {
+            return null;
+        }
+    }
 
     /**
      * Private constructor - this class need not be instantiated

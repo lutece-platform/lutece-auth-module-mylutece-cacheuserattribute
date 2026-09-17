@@ -33,24 +33,60 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service;
 
+import java.lang.reflect.Proxy;
+
 import fr.paris.lutece.portal.business.event.LuteceUserEvent;
-import fr.paris.lutece.portal.service.security.MokeLuteceAuthentication;
-import fr.paris.lutece.portal.service.security.MokeLuteceUser;
+import fr.paris.lutece.portal.service.security.LuteceAuthentication;
+import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.test.LuteceTestCase;
+
+import org.junit.jupiter.api.Test;
 
 public class CacheUserAttributeServiceTest extends LuteceTestCase
 {
 
-	private static final String USER_NAME = "user-test";
+ 	private static final String USER_NAME = "user-test";
 
+ 	/**
+     * Minimal LuteceUser for tests (core test-jar Moke classes are not on the plugin test classpath in v8)
+     */
+    private static class TestLuteceUser extends LuteceUser
+    {
+        TestLuteceUser( String strName, LuteceAuthentication auth )
+        {
+            super( strName, auth );
+        }
+    }
+
+ 	@Test
 	public void test( )
     {
-		MokeLuteceUser user = new MokeLuteceUser( USER_NAME, new MokeLuteceAuthentication( ) );
+        // Minimal authentication stub: only getAuthServiceName is used by the LuteceUser constructor
+        LuteceAuthentication auth = (LuteceAuthentication) Proxy.newProxyInstance( getClass( ).getClassLoader( ),
+                new Class<?> [ ] {
+                    LuteceAuthentication.class
+                }, ( proxy, method, args ) -> {
+                    if ( "getAuthServiceName".equals( method.getName( ) ) )
+                    {
+                        return "TEST";
+                    }
+                    Class<?> returnType = method.getReturnType( );
+                    if ( boolean.class.equals( returnType ) )
+                    {
+                        return false;
+                    }
+                    if ( int.class.equals( returnType ) )
+                    {
+                        return 0;
+                    }
+                    return null;
+                } );
+        LuteceUser user = new TestLuteceUser( USER_NAME, auth );
 
     	// notify an event
     	CacheUserAttributeService.loginEvent( new LuteceUserEvent( user, LuteceUserEvent.EventType.LOGIN_SUCCESSFUL ) );
 
-    	
+
     }
     
 }

@@ -40,6 +40,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * This is the business class test for the object CacheUserAttribute
  */
@@ -57,6 +59,7 @@ public class CacheUserAttributeBusinessTest extends LuteceTestCase
     /**
      * test CacheUserAttribute
      */
+    @Test
     public void testBusiness( )
     {
         // Initialize an object

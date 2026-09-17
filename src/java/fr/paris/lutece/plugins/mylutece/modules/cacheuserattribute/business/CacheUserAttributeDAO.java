@@ -43,10 +43,12 @@ import java.util.stream.Collectors;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * This class provides Data Access methods for CacheUserAttribute objects
  */
+@ApplicationScoped
 public final class CacheUserAttributeDAO implements ICacheUserAttributeDAO
 {
     // Constants
@@ -123,7 +125,6 @@ public final class CacheUserAttributeDAO implements ICacheUserAttributeDAO
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
-            daoUtil.free( );
         }
     }
 

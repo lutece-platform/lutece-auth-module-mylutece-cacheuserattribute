@@ -43,7 +43,9 @@ import fr.paris.lutece.portal.business.event.LuteceUserEvent;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import jakarta.enterprise.context.ApplicationScoped;
 
+@ApplicationScoped
 public class CacheUserAttributeService
 {
 

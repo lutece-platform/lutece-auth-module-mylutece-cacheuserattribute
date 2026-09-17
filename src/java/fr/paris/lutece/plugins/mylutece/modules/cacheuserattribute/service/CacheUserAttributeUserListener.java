@@ -33,15 +33,29 @@
  */
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service;
 
-import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.portal.business.event.LuteceUserEvent;
+import fr.paris.lutece.portal.service.util.AppLogService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 
-public class CacheUserAttributePlugin extends Plugin
+/**
+ * CDI observer for Lutece user events (replaces the legacy registration formerly done in CacheUserAttributePlugin.init)
+ */
+@ApplicationScoped
+public class CacheUserAttributeUserListener
 {
     /**
-     * Initializes the plugin at the first load
+     * Handles user events, caching attributes on successful login
      *
+     * @param event the Lutece user event
      */
-    public void init( )
+    public void onUserEvent( @Observes LuteceUserEvent event )
     {
+        if ( event.getParam( ) != null && event.getType( ) == LuteceUserEvent.EventType.LOGIN_SUCCESSFUL )
+        {
+            AppLogService.debug( "listener says > {} performed : {}", event.getParam( ).getName( ), event.getType( ) );
+
+            CacheUserAttributeService.loginEvent( event );
+        }
     }
 }
