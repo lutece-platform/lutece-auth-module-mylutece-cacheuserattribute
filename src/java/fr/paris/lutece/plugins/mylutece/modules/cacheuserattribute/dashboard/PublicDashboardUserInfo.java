@@ -40,10 +40,12 @@ import java.util.Map;
 import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.service.CacheUserAttributeService;
 import fr.paris.lutece.portal.service.dashboard.IPublicDashboardComponent;
 import fr.paris.lutece.portal.service.i18n.I18nService;
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * The Class PublicDashboardUserInfo.
  */
+@ApplicationScoped
 public class PublicDashboardUserInfo implements IPublicDashboardComponent
 {
 	public static final String DASHBOARD_PROPERTIES_TITLE = "module.mylutece.cacheuserattribute.publicdashboard.bean.title";
