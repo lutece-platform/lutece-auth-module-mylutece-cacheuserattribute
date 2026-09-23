@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -103,7 +104,6 @@ public final class CacheUserAttributeHome
      */
     public static CacheUserAttribute createOrUpdateIfDifferent( CacheUserAttribute cacheUserAttribute )
     {
-        // search if attribute already present in cache
         Optional<CacheUserAttribute> optStoredAttribute = _dao.loadByUserAndAttributeId( cacheUserAttribute.getIdUser( ), cacheUserAttribute.getIdAttribute( ),
                 _plugin );
 
@@ -111,9 +111,8 @@ public final class CacheUserAttributeHome
         {
             CacheUserAttribute storedAttribute = optStoredAttribute.get( );
 
-            if ( !storedAttribute.getContent( ).equals( cacheUserAttribute.getContent( ) ) )
+            if ( !Objects.equals( storedAttribute.getContent( ), cacheUserAttribute.getContent( ) ) )
             {
-                // update attribute cache value
                 cacheUserAttribute.setId( storedAttribute.getId( ) );
                 cacheUserAttribute.setCreateDate( LocalDate.now( ) );
 
@@ -122,7 +121,6 @@ public final class CacheUserAttributeHome
         }
         else
         {
-            // create attribute cache if not exists
             cacheUserAttribute.setCreateDate( LocalDate.now( ) );
             _dao.insert( cacheUserAttribute, _plugin );
         }

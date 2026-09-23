@@ -31,25 +31,35 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.web;
 
+import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttribute;
+import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttributeHome;
+import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
-import fr.paris.lutece.portal.service.admin.AccessDeniedException;
+import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.web.cdi.mvc.Models;
+import fr.paris.lutece.portal.web.util.IPager;
+import fr.paris.lutece.portal.web.util.Pager;
+import fr.paris.lutece.util.date.DateUtil;
 import fr.paris.lutece.util.url.UrlItem;
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
 
-import java.util.List;
-import java.time.LocalDate;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
-import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttribute;
-import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.CacheUserAttributeHome;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * This class provides the user interface to manage CacheUserAttribute features ( manage, create, modify, remove )
@@ -57,12 +67,14 @@ import fr.paris.lutece.plugins.mylutece.modules.cacheuserattribute.business.Cach
 @SessionScoped
 @Named
 @Controller( controllerJsp = "ManageCacheUserAttributes.jsp", controllerPath = "jsp/admin/plugins/mylutece/modules/cacheuserattribute/", right = "MYLUTECE_CACHEUSERATTRIBUTE_MANAGEMENT", securityTokenEnabled = true )
-public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJspBean
+public class CacheUserAttributeJspBean extends MVCAdminJspBean
 {
+    // Rights
+    public static final String RIGHT_MANAGECACHEUSERATTRIBUTE = "MYLUTECE_CACHEUSERATTRIBUTE_MANAGEMENT";
 
-	private static final long serialVersionUID = 5246660343915886385L;
-	
-	// Templates
+    private static final long serialVersionUID = 5246660343915886385L;
+
+    // Templates
     private static final String TEMPLATE_MANAGE_CACHEUSERATTRIBUTES = "/admin/plugins/mylutece/modules/cacheuserattribute/manage_cacheuserattributes.html";
     private static final String TEMPLATE_CREATE_CACHEUSERATTRIBUTE = "/admin/plugins/mylutece/modules/cacheuserattribute/create_cacheuserattribute.html";
     private static final String TEMPLATE_MODIFY_CACHEUSERATTRIBUTE = "/admin/plugins/mylutece/modules/cacheuserattribute/modify_cacheuserattribute.html";
@@ -70,6 +82,7 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     // Parameters
     private static final String PARAMETER_ID_CACHEUSERATTRIBUTE = "id";
     private static final String PARAMETER_USER_ID = "user_id";
+
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_CACHEUSERATTRIBUTES = "module.mylutece.cacheuserattribute.manage_cacheuserattributes.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_CACHEUSERATTRIBUTE = "module.mylutece.cacheuserattribute.modify_cacheuserattribute.pageTitle";
@@ -78,11 +91,14 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     // Markers
     private static final String MARK_CACHEUSERATTRIBUTE_LIST = "cacheuserattribute_list";
     private static final String MARK_CACHEUSERATTRIBUTE = "cacheuserattribute";
+    private static final String MARK_USER_ID = "user_id";
+    private static final String MARK_DATE_FORMATTER = "date_formatter";
 
     private static final String JSP_MANAGE_CACHEUSERATTRIBUTES = "jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp";
 
     // Properties
     private static final String MESSAGE_CONFIRM_REMOVE_CACHEUSERATTRIBUTE = "module.mylutece.cacheuserattribute.message.confirmRemoveCacheUserAttribute";
+    private static final String MESSAGE_ERROR_NOT_FOUND = "module.mylutece.cacheuserattribute.message.error.notFound";
 
     // Validations
     private static final String VALIDATION_ATTRIBUTES_PREFIX = "module.mylutece.cacheuserattribute.model.entity.cacheuserattribute.attribute.";
@@ -91,29 +107,34 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     private static final String VIEW_MANAGE_CACHEUSERATTRIBUTES = "manageCacheUserAttributes";
     private static final String VIEW_CREATE_CACHEUSERATTRIBUTE = "createCacheUserAttribute";
     private static final String VIEW_MODIFY_CACHEUSERATTRIBUTE = "modifyCacheUserAttribute";
+    private static final String VIEW_CONFIRM_REMOVE_CACHEUSERATTRIBUTE = "confirmRemoveCacheUserAttribute";
 
     // Actions
     private static final String ACTION_CREATE_CACHEUSERATTRIBUTE = "createCacheUserAttribute";
     private static final String ACTION_MODIFY_CACHEUSERATTRIBUTE = "modifyCacheUserAttribute";
     private static final String ACTION_REMOVE_CACHEUSERATTRIBUTE = "removeCacheUserAttribute";
-    private static final String ACTION_CONFIRM_REMOVE_CACHEUSERATTRIBUTE = "confirmRemoveCacheUserAttribute";
 
     // Infos
     private static final String INFO_CACHEUSERATTRIBUTE_CREATED = "module.mylutece.cacheuserattribute.info.cacheuserattribute.created";
     private static final String INFO_CACHEUSERATTRIBUTE_UPDATED = "module.mylutece.cacheuserattribute.info.cacheuserattribute.updated";
     private static final String INFO_CACHEUSERATTRIBUTE_REMOVED = "module.mylutece.cacheuserattribute.info.cacheuserattribute.removed";
 
-    // ERRORS
-    private static final String ERROR_RESOURCE_NOT_FOUND = "Resource not found";
+    private static final int ID_NONE = -1;
+
+    @Inject
+    @Pager( listBookmark = MARK_CACHEUSERATTRIBUTE_LIST, defaultItemsPerPage = "mylutece-cacheuserattribute.listItems.itemsPerPage", baseUrl = JSP_MANAGE_CACHEUSERATTRIBUTES )
+    private IPager<CacheUserAttribute, Void> _pager;
 
     // Session variable to store working values
     private CacheUserAttribute _cacheuserattribute;
 
     /**
      * Build the Manage View
-     * 
+     *
      * @param request
      *            The HTTP request
+     * @param model
+     *            The model
      * @return The page
      */
     @View( value = VIEW_MANAGE_CACHEUSERATTRIBUTES, defaultView = true )
@@ -122,9 +143,17 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
         _cacheuserattribute = null;
 
         String strUserId = request.getParameter( PARAMETER_USER_ID );
+        UrlItem url = new UrlItem( JSP_MANAGE_CACHEUSERATTRIBUTES );
 
-        List<CacheUserAttribute> listCacheUserAttributes = CacheUserAttributeHome.getCacheUserAttributesListByUserKey( strUserId );
-        getPaginatedListModel( model, request, MARK_CACHEUSERATTRIBUTE_LIST, listCacheUserAttributes, JSP_MANAGE_CACHEUSERATTRIBUTES );
+        if ( StringUtils.isNotBlank( strUserId ) )
+        {
+            url.addParameter( PARAMETER_USER_ID, strUserId );
+        }
+
+        _pager.withBaseUrl( url.getUrl( ) ).withListItem( CacheUserAttributeHome.getCacheUserAttributesListByUserKey( strUserId ) )
+                .populateModels( request, model, getLocale( ) );
+        model.put( MARK_USER_ID, strUserId );
+        model.put( MARK_DATE_FORMATTER, DateTimeFormatter.ofPattern( DateUtil.getDefaultPattern( getLocale( ) ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_CACHEUSERATTRIBUTES, TEMPLATE_MANAGE_CACHEUSERATTRIBUTES, model );
     }
@@ -134,6 +163,8 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      *
      * @param request
      *            The Http request
+     * @param model
+     *            The model
      * @return the html code of the cacheuserattribute form
      */
     @View( value = VIEW_CREATE_CACHEUSERATTRIBUTE, securityTokenAction = ACTION_CREATE_CACHEUSERATTRIBUTE )
@@ -153,19 +184,19 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      *            The Http Request
      * @return The Jsp URL of the process result
      * @throws AccessDeniedException
+     *             if the user is not allowed
      */
     @Action( ACTION_CREATE_CACHEUSERATTRIBUTE )
     public String doCreateCacheUserAttribute( HttpServletRequest request ) throws AccessDeniedException
     {
+        _cacheuserattribute = ( _cacheuserattribute != null ) ? _cacheuserattribute : new CacheUserAttribute( );
         populate( _cacheuserattribute, request, getLocale( ) );
 
-        // The creation date is system-managed (not in the form): default it before validation (@NotNull)
         if ( _cacheuserattribute.getCreateDate( ) == null )
         {
             _cacheuserattribute.setCreateDate( LocalDate.now( ) );
         }
 
-        // Check constraints
         if ( !validateBean( _cacheuserattribute, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
             return redirectView( request, VIEW_CREATE_CACHEUSERATTRIBUTE );
@@ -174,7 +205,7 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
         CacheUserAttributeHome.create( _cacheuserattribute );
         addInfo( INFO_CACHEUSERATTRIBUTE_CREATED, getLocale( ) );
 
-        return redirectView( request, VIEW_MANAGE_CACHEUSERATTRIBUTES );
+        return redirectToList( request, _cacheuserattribute.getIdUser( ) );
     }
 
     /**
@@ -184,10 +215,16 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      *            The Http request
      * @return the html code to confirm
      */
-    @View( value = ACTION_CONFIRM_REMOVE_CACHEUSERATTRIBUTE, securityTokenAction = ACTION_REMOVE_CACHEUSERATTRIBUTE )
+    @View( value = VIEW_CONFIRM_REMOVE_CACHEUSERATTRIBUTE, securityTokenAction = ACTION_REMOVE_CACHEUSERATTRIBUTE )
     public String getConfirmRemoveCacheUserAttribute( HttpServletRequest request )
     {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ) );
+        int nId = NumberUtils.toInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ), ID_NONE );
+
+        if ( CacheUserAttributeHome.findByPrimaryKey( nId ).isEmpty( ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_NOT_FOUND, AdminMessage.TYPE_STOP ) );
+        }
+
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_CACHEUSERATTRIBUTE ) );
         url.addParameter( PARAMETER_ID_CACHEUSERATTRIBUTE, nId );
 
@@ -207,12 +244,18 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
     @Action( ACTION_REMOVE_CACHEUSERATTRIBUTE )
     public String doRemoveCacheUserAttribute( HttpServletRequest request )
     {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ) );
+        int nId = NumberUtils.toInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ), ID_NONE );
+        Optional<CacheUserAttribute> optAttribute = CacheUserAttributeHome.findByPrimaryKey( nId );
+
+        if ( optAttribute.isEmpty( ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_NOT_FOUND, AdminMessage.TYPE_STOP ) );
+        }
 
         CacheUserAttributeHome.remove( nId );
         addInfo( INFO_CACHEUSERATTRIBUTE_REMOVED, getLocale( ) );
 
-        return redirectView( request, VIEW_MANAGE_CACHEUSERATTRIBUTES );
+        return redirectToList( request, optAttribute.get( ).getIdUser( ) );
     }
 
     /**
@@ -220,12 +263,14 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      *
      * @param request
      *            The Http request
+     * @param model
+     *            The model
      * @return The HTML form to update info
      */
     @View( value = VIEW_MODIFY_CACHEUSERATTRIBUTE, securityTokenAction = ACTION_MODIFY_CACHEUSERATTRIBUTE )
     public String getModifyCacheUserAttribute( HttpServletRequest request, Models model )
     {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ) );
+        int nId = NumberUtils.toInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ), ID_NONE );
 
         if ( _cacheuserattribute == null || ( _cacheuserattribute.getId( ) != nId ) )
         {
@@ -234,7 +279,7 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
 
         if ( _cacheuserattribute == null )
         {
-            return redirect( request, AdminMessageService.getMessageUrl( request, ERROR_RESOURCE_NOT_FOUND, AdminMessage.TYPE_STOP ) );
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_NOT_FOUND, AdminMessage.TYPE_STOP ) );
         }
 
         model.put( MARK_CACHEUSERATTRIBUTE, _cacheuserattribute );
@@ -249,13 +294,20 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
      *            The Http request
      * @return The Jsp URL of the process result
      * @throws AccessDeniedException
+     *             if the user is not allowed
      */
     @Action( ACTION_MODIFY_CACHEUSERATTRIBUTE )
     public String doModifyCacheUserAttribute( HttpServletRequest request ) throws AccessDeniedException
     {
+        int nId = NumberUtils.toInt( request.getParameter( PARAMETER_ID_CACHEUSERATTRIBUTE ), ID_NONE );
+
+        if ( ( _cacheuserattribute == null ) || ( _cacheuserattribute.getId( ) != nId ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_NOT_FOUND, AdminMessage.TYPE_STOP ) );
+        }
+
         populate( _cacheuserattribute, request, getLocale( ) );
 
-        // Check constraints
         if ( !validateBean( _cacheuserattribute, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
             return redirect( request, VIEW_MODIFY_CACHEUSERATTRIBUTE, PARAMETER_ID_CACHEUSERATTRIBUTE, _cacheuserattribute.getId( ) );
@@ -264,6 +316,20 @@ public class CacheUserAttributeJspBean extends AbstractManageCacheUserAttributeJ
         CacheUserAttributeHome.update( _cacheuserattribute );
         addInfo( INFO_CACHEUSERATTRIBUTE_UPDATED, getLocale( ) );
 
-        return redirectView( request, VIEW_MANAGE_CACHEUSERATTRIBUTES );
+        return redirectToList( request, _cacheuserattribute.getIdUser( ) );
+    }
+
+    /**
+     * Redirects to the list filtered on a user
+     *
+     * @param request
+     *            The Http request
+     * @param strUserId
+     *            the user id the list is filtered on
+     * @return the redirection url
+     */
+    private String redirectToList( HttpServletRequest request, String strUserId )
+    {
+        return redirect( request, VIEW_MANAGE_CACHEUSERATTRIBUTES, Map.of( PARAMETER_USER_ID, StringUtils.defaultString( strUserId ) ) );
     }
 }

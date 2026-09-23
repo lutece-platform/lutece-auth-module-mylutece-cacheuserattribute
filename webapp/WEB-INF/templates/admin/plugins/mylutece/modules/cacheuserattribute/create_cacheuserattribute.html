@@ -1,24 +1,24 @@
-<#include "managecacheuserattribute_tabs.html" />
-<@tabs2 tab="cacheuserattribute" />
-<@box>
-	<@boxHeader title='#i18n{module.mylutece.cacheuserattribute.create_cacheuserattribute.title}' />
-	<@boxBody>
-    <@tform name='create_cacheuserattribute' action='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp' >
-
-        <@messages errors=errors />
-        <@input type="hidden" id="id" name="id"/>
-
-		<@formGroup labelFor='id_user' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelIdUser}' mandatory=true>
-			<@input type='text' id='id_user' name='id_user'  maxlength=50 value='${cacheuserattribute.idUser!\'\'}' tabIndex='0' />
-		</@formGroup>
-		<@formGroup labelFor='id_attribute' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelIdAttribute}' mandatory=true>
-			<@input type='text' id='id_attribute' name='id_attribute'  value='${cacheuserattribute.idAttribute!\'\'}' tabIndex='1' />
-		</@formGroup>
-		<@formGroup labelFor='content' labelKey='#i18n{module.mylutece.cacheuserattribute.modify_cacheuserattribute.labelContent}' mandatory=true>
-			<@input type='text' id='content' name='content'  maxlength=50 value='${cacheuserattribute.content!\'\'}' tabIndex='2' />
-		</@formGroup>
-				
-		<@actionButtons button1Name="action_createCacheUserAttribute" button2Name="view_manageCacheUserAttribute"/>
-    </@tform>
-	</@boxBody>
-</@box>
+<@pageContainer>
+    <@pageColumn>
+        <@pageHeader title='#i18n{module.mylutece.cacheuserattribute.create_cacheuserattribute.title}'>
+            <@aButton href='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?view=manageCacheUserAttributes&amp;user_id=${(cacheuserattribute.idUser!)?url("UTF-8")}' buttonIcon='arrow-left' title='#i18n{portal.util.labelBack}' color='light' />
+        </@pageHeader>
+        <@messages errors=errors![] />
+        <@tform method='post' name='create_cacheuserattribute' action='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp' boxed=true>
+            <@input type='hidden' name='action' value='createCacheUserAttribute' />
+            <@formGroup labelFor='id_user' labelKey='#i18n{module.mylutece.cacheuserattribute.create_cacheuserattribute.labelIdUser}' mandatory=true rows=2>
+                <@input type='text' id='id_user' name='id_user' maxlength=50 value='${cacheuserattribute.idUser!}' mandatory=true />
+            </@formGroup>
+            <@formGroup labelFor='id_attribute' labelKey='#i18n{module.mylutece.cacheuserattribute.create_cacheuserattribute.labelIdAttribute}' mandatory=true rows=2>
+                <@input type='number' id='id_attribute' name='id_attribute' value="${( cacheuserattribute.idAttribute == 0 && !cacheuserattribute.idUser?has_content )?then( '', cacheuserattribute.idAttribute?c )}" mandatory=true />
+            </@formGroup>
+            <@formGroup labelFor='content' labelKey='#i18n{module.mylutece.cacheuserattribute.create_cacheuserattribute.labelContent}' rows=2>
+                <@input type='text' id='content' name='content' maxlength=50 value='${cacheuserattribute.content!}' />
+            </@formGroup>
+            <@formGroup rows=2>
+                <@button type='submit' buttonIcon='check' title='#i18n{portal.util.labelValidate}' color='primary' />
+                <@aButton href='jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp?view=manageCacheUserAttributes&amp;user_id=${(cacheuserattribute.idUser!)?url("UTF-8")}' buttonIcon='x' title='#i18n{portal.util.labelCancel}' color='light' />
+            </@formGroup>
+        </@tform>
+    </@pageColumn>
+</@pageContainer>

@@ -1,14 +1,17 @@
-
-		<h2>#i18n{module.mylutece.cacheuserattribute.publicdashboard.title}</h2>
-		<div class="table-responsive">
-			<table class="table table-striped">
-				<tbody>
-					<#list userInformations_publicdashboard?keys as key>
-						<tr>
-							<td>${key}</td>
-							<td>${userInformations_publicdashboard[key]}</td>
-						</tr>
-					</#list>
-				</tbody>
-			</table>
-		</div>
+<@cTitle level=2>#i18n{module.mylutece.cacheuserattribute.publicdashboard.title}</@cTitle>
+<@cTable id='' caption='#i18n{module.mylutece.cacheuserattribute.publicdashboard.title}' collapsible=false>
+    <@cThead>
+        <@cTr>
+            <@cTh>#i18n{module.mylutece.cacheuserattribute.publicdashboard.column.title}</@cTh>
+            <@cTh>#i18n{module.mylutece.cacheuserattribute.publicdashboard.column.description}</@cTh>
+        </@cTr>
+    </@cThead>
+    <@cTbody>
+        <#list userInformations_publicdashboard?keys as key>
+        <@cTr>
+            <@cTd>${key}</@cTd>
+            <@cTd>${userInformations_publicdashboard[key]!}</@cTd>
+        </@cTr>
+        </#list>
+    </@cTbody>
+</@cTable>
