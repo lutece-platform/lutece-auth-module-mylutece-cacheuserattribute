@@ -87,7 +87,6 @@ public class CacheUserAttributeService
 
         if ( mustBeCached )
         {
-            // store first cache creation date
             if ( !CacheUserAttributeHome.findByUserAndAttributeId( user.getAccessCode( ), FIRST_CONNECTION_DATE_ATTRIBUTE_ID ).isPresent( ) )
             {
                 CacheUserAttribute attr = new CacheUserAttribute( );

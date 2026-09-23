@@ -26,14 +26,11 @@
             <feature-description>module.mylutece.cacheuserattribute.adminFeature.ManageCacheUserAttribute.description</feature-description>
             <feature-level>1</feature-level>
             <feature-url>jsp/admin/plugins/mylutece/modules/cacheuserattribute/ManageCacheUserAttributes.jsp</feature-url>
-            <feature-icon-url/>
+            <feature-icon-url>ti ti-database</feature-icon-url>
+            <icon-url>ti ti-database</icon-url>
         </admin-feature>
     </admin-features>
 
-    <listener>
-        <display-name>Lutece context listener</display-name>
-        <listener-class>fr.paris.lutece.portal.service.init.AppInitListener</listener-class>
-    </listener>
     
    
 
